@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fotky v cloudu, ale bez Googlových očí</title>
+  <style>
+    @font-face {
+      font-family: 'JBM';
+      src: local('JetBrainsMono Nerd Font'), local('JetBrains Mono');
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #181825;
+      font-family: 'JBM', 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    .cover {
+      width: 1200px;
+      height: 630px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 56px;
+      box-sizing: border-box;
+      color: #cdd6f4;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(148, 226, 213, 0.10), transparent 40%),
+        radial-gradient(circle at 84% 86%, rgba(137, 180, 250, 0.10), transparent 42%),
+        #1e1e2e;
+      overflow: hidden;
+    }
+
+    /* faint dot grid texture */
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(205, 214, 244, 0.05) 1px, transparent 1px);
+      background-size: 26px 26px;
+      pointer-events: none;
+    }
+
+    .header {
+      position: absolute;
+      top: 44px;
+      left: 56px;
+      font-size: 22px;
+      color: #94e2d5;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      gap: 78px;
+      margin-bottom: 34px;
+    }
+
+    /* ---- Photo stack ---- */
+    .stack {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      flex: 0 0 auto;
+    }
+
+    .tile {
+      position: absolute;
+      width: 190px;
+      height: 240px;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tile .cap {
+      position: absolute;
+      bottom: 10px;
+      left: 14px;
+      right: 14px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(17, 17, 27, 0.35);
+    }
+
+    .tile.a {
+      top: 8px;
+      left: 0;
+      transform: rotate(-9deg);
+      background: linear-gradient(155deg, #f5c2b0 0%, #eba0ac 55%, #c9788b 100%);
+      z-index: 1;
+    }
+
+    .tile.b {
+      top: 18px;
+      left: 62px;
+      transform: rotate(4deg);
+      background: linear-gradient(155deg, #a6e3a1 0%, #6fbf8a 55%, #45836a 100%);
+      z-index: 2;
+    }
+
+    .tile.c {
+      top: -6px;
+      left: 118px;
+      transform: rotate(-2deg);
+      background:
+        repeating-linear-gradient(115deg, #313147 0px, #313147 3px, #3a3a55 3px, #3a3a55 6px);
+      z-index: 3;
+    }
+
+    .tile.c::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(30, 30, 46, 0) 55%, rgba(17, 17, 27, 0.75) 100%);
+    }
+
+    .lock {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%);
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: #11111b;
+      border: 2px solid #45475a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 10px #1e1e2e, 0 22px 50px rgba(0, 0, 0, 0.55), 0 0 34px rgba(148, 226, 213, 0.28);
+      z-index: 4;
+    }
+
+    .lock svg {
+      width: 46px;
+      height: 46px;
+    }
+
+    .badge {
+      position: absolute;
+      left: 50%;
+      bottom: -18px;
+      transform: translateX(-50%);
+      background: #a6e3a1;
+      color: #11111b;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    /* ---- Terminal card ---- */
+    .terminal {
+      background: #11111b;
+      border: 2px solid #45475a;
+      border-radius: 12px;
+      padding: 26px 30px;
+      width: 470px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .prompt {
+      color: #a6e3a1;
+    }
+
+    .cmd {
+      color: #cdd6f4;
+    }
+
+    .path {
+      color: #f9e2af;
+    }
+
+    .ok {
+      color: #a6e3a1;
+    }
+
+    .no {
+      color: #6c7086;
+    }
+
+    .comment {
+      color: #6c7086;
+    }
+
+    .encrypted {
+      letter-spacing: 2px;
+      color: #585b70;
+    }
+
+    .title {
+      font-size: 50px;
+      font-weight: bold;
+      color: #f5e0dc;
+      text-align: center;
+      line-height: 1.18;
+      max-width: 900px;
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      font-size: 23px;
+      color: #a6adc8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #94e2d5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="cover">
+    <div class="header">☁ OSCloud • fotky</div>
+
+    <div class="stage">
+      <div class="stack">
+        <div class="tile a">
+          <div class="cap"></div>
+        </div>
+        <div class="tile b">
+          <div class="cap"></div>
+        </div>
+        <div class="tile c">
+          <div class="cap"></div>
+        </div>
+        <div class="lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#94e2d5" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+          </svg>
+        </div>
+        <div class="badge">jen vy máte klíč</div>
+      </div>
+
+      <div class="terminal">
+        <div><span class="prompt">➜</span> <span class="cmd">nahrát</span> <span class="path">fotka.jpg</span></div>
+        <div><span class="ok">✓</span> šifrování &nbsp;<span class="comment"># přímo v zařízení</span></div>
+        <div><span class="ok">✓</span> odesláno na <span class="path">oscloud.photos</span></div>
+        <div><span class="no">server vidí:</span> <span class="encrypted">▓▒░▓░▒▓▒░▓▒░▓</span></div>
+        <div>&nbsp;&nbsp;<span class="comment">obsah nezná ani provozovatel</span></div>
+      </div>
+    </div>
+
+    <div class="title">Fotky v cloudu,<br>ale bez Googlových očí</div>
+    <div class="subtitle"><span class="dot"></span>blog.oscloud.cz</div>
+  </div>
+</body>
+
+</html>
