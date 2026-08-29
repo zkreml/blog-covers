@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Moderní CLI – bat</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #181825;
+            font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        .cover {
+            width: 1200px;
+            height: 630px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            box-sizing: border-box;
+            color: #cdd6f4;
+            background: #1e1e2e;
+        }
+
+        .header {
+            font-size: 32px;
+            color: #89b4fa;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .terminal {
+            background: #11111b;
+            border: 2px solid #45475a;
+            border-radius: 12px;
+            padding: 30px 40px;
+            width: 760px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            font-size: 21px;
+            line-height: 1.7;
+        }
+
+        .prompt {
+            color: #a6e3a1;
+        }
+
+        .cmd {
+            color: #cdd6f4;
+        }
+
+        .lnum {
+            color: #6c7086;
+        }
+
+        .sep {
+            color: #45475a;
+        }
+
+        .key {
+            color: #cba6f7;
+        }
+
+        .str {
+            color: #a6e3a1;
+        }
+
+        .comment {
+            color: #6c7086;
+        }
+
+        .title {
+            margin-top: 40px;
+            font-size: 48px;
+            font-weight: bold;
+            color: #f5e0dc;
+        }
+
+        .subtitle {
+            margin-top: 15px;
+            font-size: 24px;
+            color: #a6adc8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cover">
+
+        <div class="header">🦀 Moderní CLI • díl 3/6</div>
+
+        <div class="terminal">
+            <div><span class="prompt">➜</span> <span class="cmd">bat /etc/pacman.conf</span></div>
+            <div><span class="lnum">1</span> <span class="sep">│</span> <span class="comment"># /etc/pacman.conf</span>
+            </div>
+            <div><span class="lnum">2</span> <span class="sep">│</span> <span class="key">[options]</span></div>
+            <div><span class="lnum">3</span> <span class="sep">│</span> <span class="cmd">HoldPkg </span><span
+                    class="sep">=</span><span class="str"> pacman glibc</span></div>
+            <div><span class="lnum">4</span> <span class="sep">│</span> <span class="cmd">Architecture </span><span
+                    class="sep">=</span><span class="str"> auto</span></div>
+            <div><span class="lnum">5</span> <span class="sep">│</span> <span class="cmd">Color</span></div>
+        </div>
+
+        <div class="title">bat – cat s barvami</div>
+        <div class="subtitle">arch-linux.cz</div>
+
+    </div>
+</body>
+
+</html>
