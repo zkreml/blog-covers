@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+  <meta charset="UTF-8">
+  <title>fd – najdi cokoliv rychleji než findem</title>
+  <style>
+    @font-face {
+      font-family: 'JBM';
+      src: local('JetBrainsMono Nerd Font'), local('JetBrains Mono');
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #181825;
+      font-family: 'JBM', 'JetBrains Mono', 'DejaVu Sans Mono', 'Fira Code', monospace;
+    }
+
+    .cover {
+      width: 1200px;
+      height: 630px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 56px;
+      box-sizing: border-box;
+      color: #cdd6f4;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(250, 179, 135, 0.10), transparent 40%),
+        radial-gradient(circle at 84% 86%, rgba(249, 226, 175, 0.10), transparent 42%),
+        #1e1e2e;
+      overflow: hidden;
+    }
+
+    /* faint dot grid texture */
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(205, 214, 244, 0.05) 1px, transparent 1px);
+      background-size: 26px 26px;
+      pointer-events: none;
+    }
+
+    .header {
+      position: absolute;
+      top: 44px;
+      left: 56px;
+      font-size: 22px;
+      color: #fab387;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .series {
+      position: absolute;
+      top: 44px;
+      right: 56px;
+      font-size: 16px;
+      color: #6c7086;
+      letter-spacing: 0.3px;
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      gap: 78px;
+      margin-bottom: 34px;
+    }
+
+    /* ---- File stack ---- */
+    .stack {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      flex: 0 0 auto;
+    }
+
+    .tile {
+      position: absolute;
+      width: 176px;
+      height: 130px;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px 14px;
+    }
+
+    .tile .line {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(17, 17, 27, 0.30);
+      margin-bottom: 6px;
+    }
+
+    .tile .line.short {
+      width: 55%;
+    }
+
+    .tile.a {
+      top: 4px;
+      left: -6px;
+      transform: rotate(-8deg);
+      background: linear-gradient(155deg, #fab387 0%, #e69a6a 55%, #b9764f 100%);
+      z-index: 1;
+    }
+
+    .tile.b {
+      top: 150px;
+      left: 6px;
+      transform: rotate(6deg);
+      background: linear-gradient(155deg, #f9e2af 0%, #d6c087 55%, #a99763 100%);
+      z-index: 1;
+    }
+
+    .tile.c {
+      top: 100px;
+      left: 132px;
+      transform: rotate(-4deg);
+      background: linear-gradient(155deg, #eba0ac 0%, #cf7f8c 55%, #a35a67 100%);
+      z-index: 1;
+    }
+
+    .lock {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%);
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: #11111b;
+      border: 2px solid #45475a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 10px #1e1e2e, 0 22px 50px rgba(0, 0, 0, 0.55), 0 0 34px rgba(250, 179, 135, 0.28);
+      z-index: 4;
+    }
+
+    .lock svg {
+      width: 46px;
+      height: 46px;
+    }
+
+    .badge {
+      position: absolute;
+      left: 50%;
+      bottom: -18px;
+      transform: translateX(-50%);
+      background: #fab387;
+      color: #11111b;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    /* ---- Terminal card ---- */
+    .terminal {
+      background: #11111b;
+      border: 2px solid #45475a;
+      border-radius: 12px;
+      padding: 26px 30px;
+      width: 470px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .prompt {
+      color: #fab387;
+    }
+
+    .cmd {
+      color: #cdd6f4;
+    }
+
+    .path {
+      color: #f9e2af;
+    }
+
+    .ok {
+      color: #a6e3a1;
+    }
+
+    .no {
+      color: #6c7086;
+    }
+
+    .comment {
+      color: #6c7086;
+    }
+
+    .strike {
+      color: #6c7086;
+      text-decoration: line-through;
+    }
+
+    .title {
+      font-size: 50px;
+      font-weight: bold;
+      color: #f5e0dc;
+      text-align: center;
+      line-height: 1.18;
+      max-width: 950px;
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      font-size: 23px;
+      color: #a6adc8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fab387;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="cover">
+    <div class="header">❯ arch-linux.cz</div>
+    <div class="series">Moderní CLI #4</div>
+
+    <div class="stage">
+      <div class="stack">
+        <div class="tile a">
+          <div class="line short"></div>
+          <div class="line"></div>
+        </div>
+        <div class="tile b">
+          <div class="line short"></div>
+          <div class="line"></div>
+        </div>
+        <div class="tile c">
+          <div class="line short"></div>
+          <div class="line"></div>
+        </div>
+
+        <div class="lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fab387" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <div class="badge">rychlejší než find</div>
+      </div>
+
+      <div class="terminal">
+        <div><span class="no strike">find . -name "*.md"</span></div>
+        <div><span class="prompt">➜</span> <span class="cmd">fd</span> <span class="path">-e md</span></div>
+        <div><span class="ok">✓</span> respektuje &nbsp;<span class="path">.gitignore</span></div>
+        <div><span class="ok">✓</span> paralelní hledání &nbsp;<span class="comment"># víc jader</span></div>
+        <div>&nbsp;&nbsp;<span class="comment">syntaxe, co dává smysl</span></div>
+      </div>
+    </div>
+
+    <div class="title">fd – najdi cokoliv<br>rychleji než findem</div>
+    <div class="subtitle"><span class="dot"></span>arch-linux.cz</div>
+  </div>
+</body>
+
+</html>
